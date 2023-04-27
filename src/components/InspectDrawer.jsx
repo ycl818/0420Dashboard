@@ -5,13 +5,15 @@ import { useSelector } from "react-redux";
 import { Drawer, Tab, Tabs, Box } from "@mui/material";
 
 import AceEditor from "react-ace";
+import "ace-builds/webpack-resolver";
+
 import { JSONTree } from "react-json-tree";
 
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/theme-twilight";
-
 import "ace-builds/src-noconflict/ext-language_tools";
+import DataTable from "./EditComponents/DataSourceComponent/DataTable";
 
 const InspectDrawer = ({ panelID, setDrawerOpen, drawerOpen }) => {
   const [tabIndex, setTabIndex] = useState(0);

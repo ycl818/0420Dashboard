@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchErrorShowBorder,
   updateData,
+  updateDataKeys,
   updateDataSourceWithURL,
 } from "../../store";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/theme-monokai";
@@ -14,23 +16,26 @@ import axios from "axios";
 import InspectDrawer from "../InspectDrawer";
 import VariableAccordion from "./DataSourceComponent/VariableAccordion";
 import RealTimeChart from "../testComponents/RealTimeChart";
+import DataTable from "./DataSourceComponent/DataTable";
+import SelectorBlock from "./DataSourceComponent/SelectorBlock";
 
 const DataSourceBlock = ({ panelID }) => {
   const dispatch = useDispatch();
   const textRef = useRef("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { datasource_url, fetchError, fetchErrorMessage } = useSelector(
-    (state) => {
+  const { datasource_url, fetchError, fetchErrorMessage, dataKeys } =
+    useSelector((state) => {
       const panelArray = state.widget.widgetArray;
       const targetPanel = panelArray.filter((panel) => panel.i === panelID);
       return {
         datasource_url: targetPanel[0]?.data?.datasource_url,
         fetchError: targetPanel[0]?.fetchError,
         fetchErrorMessage: targetPanel[0]?.fetchErrorMessage,
+        dataKeys: targetPanel[0]?.dataKeys || [],
       };
-    }
-  );
+    });
 
   const [textValue, setTextValue] = useState(datasource_url || "");
 
@@ -63,7 +68,11 @@ const DataSourceBlock = ({ panelID }) => {
       if (currentText === "http://localhost:5001/updates/v2") return;
       const response = await axios.get(currentText);
       const data = response.data;
+      const keys = Object.keys(data[0]);
+      console.log("🚀 ~ file: DataSourceBlock.jsx:67 ~ fetchURl ~ data:", data);
+      dispatch(updateDataKeys({ keys, panelID }));
       dispatch(updateData({ data, panelID }));
+      setIsLoading(false);
       const res = false;
       const id = panelID;
       const message = "";
@@ -151,8 +160,9 @@ const DataSourceBlock = ({ panelID }) => {
       ) : (
         ""
       )}
+      <DataTable panelID={panelID} />
 
-      {/* <RealTimeChart /> */}
+      <SelectorBlock panelID={panelID} />
 
       <InspectDrawer
         panelID={panelID}
